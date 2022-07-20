@@ -1,0 +1,35 @@
+body {
+    margin: 0;
+}
+
+#myModal {
+    position: fixed;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    overflow: auto;
+}
+
+#closeModal {
+    font-size:  30px;
+    font-weight:  bold;
+    float: right;
+}
+
+#closeModal:hover,
+#closeModal:focus {
+    color: red;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#modalContent {
+    position: relative;
+    background-color: cornflowerblue;
+    padding: 0;
+    margin: auto;
+    width: 50%;
+}

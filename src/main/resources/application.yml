@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate.ddl-auto: update
+    show-sql: true
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/myDataBase
+    username: daniil
+    password: 123
+  liquibase:
+    change-log: db/migration/master.yml
+    enabled: false
