@@ -3,44 +3,32 @@ package org.kuzd4niil.testTaskMeetRoom.controllers;
 import org.kuzd4niil.testTaskMeetRoom.entities.Event;
 import org.kuzd4niil.testTaskMeetRoom.services.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
-import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author :daniil
  * @description :
- * @create :2022-07-14
+ * @create :2022-07-21
  */
-@RestController
-@RequestMapping("api/v1/events")
+@Controller
+@RequestMapping("event")
 public class EventController {
     private EventService eventService;
-
     @Autowired
     public EventController(EventService eventService) {
         this.eventService = eventService;
     }
 
-    @GetMapping
-    public List<Event> getEvents(@RequestParam(name = "currentTime") Date currentTimeInMilliseconds) {
-        List<Event> eventList = eventService.getEvents(currentTimeInMilliseconds);
-        return eventList;
-    }
+    @GetMapping("{eventId}")
+    public String event(@PathVariable(name = "eventId") Long eventId, Model model) {
+        Event event = eventService.getEvent(eventId);
 
-    @PostMapping
-    public Event addNewEvent(@RequestBody Event event) {
-        Event newEvent = eventService.addEvent(event);
-        return newEvent;
-    }
+        model.addAttribute("event", event);
 
-    public EventService getEventService() {
-        return eventService;
-    }
-
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
+        return "event";
     }
 }

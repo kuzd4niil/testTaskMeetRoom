@@ -1,6 +1,9 @@
 package org.kuzd4niil.testTaskMeetRoom.services;
 
 import org.kuzd4niil.testTaskMeetRoom.entities.Event;
+import org.kuzd4niil.testTaskMeetRoom.exceptions.AnEventOverlapsWithAnotherEventException;
+import org.kuzd4niil.testTaskMeetRoom.exceptions.StartTimeAndEndTimeOfEventIsTheSameException;
+import org.kuzd4niil.testTaskMeetRoom.exceptions.TimeIsNotAMultipleOfHalfOfHourException;
 import org.kuzd4niil.testTaskMeetRoom.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,8 @@ import java.util.List;
 @Service
 public class EventService {
     private final static long MILLISECONDS_IN_ONE_DAY = 86400000;
+    private final static long MILLISECONDS_IN_HALF_OF_HOUR = 1800000;
+    private final static long MILLISECONDS_IN_ONE_SECOND = 1000;
     private EventRepository eventRepository;
 
     @Autowired
@@ -60,6 +65,24 @@ public class EventService {
     }
 
     public Event addEvent(Event event) {
+        if (event.getStartDateOfEvent().getTime() == event.getEndDateOfEvent().getTime()) {
+            throw new StartTimeAndEndTimeOfEventIsTheSameException("Start time and end time of event is the same exception");
+        }
+
+        if (event.getStartDateOfEvent().getTime() % MILLISECONDS_IN_HALF_OF_HOUR > 0) {
+            throw new TimeIsNotAMultipleOfHalfOfHourException("Time of start event isn't a multiple of half of hour");
+        }
+
+        if (event.getEndDateOfEvent().getTime() % MILLISECONDS_IN_HALF_OF_HOUR > 0) {
+            throw new TimeIsNotAMultipleOfHalfOfHourException("Time of end event isn't a multiple of half of hour");
+        }
+
+        List<Event> overlappingEvents = eventRepository.getOverlappingEvents(event.getStartDateOfEvent(), event.getEndDateOfEvent());
+
+        if (overlappingEvents.size() > 0) {
+            throw new AnEventOverlapsWithAnotherEventException("An event overlaps with another event exception");
+        }
+
         return eventRepository.save(event);
     }
 

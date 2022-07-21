@@ -27,13 +27,4 @@ public class MainController {
     public String index() {
         return "meetRoom";
     }
-
-    @GetMapping("event/{eventId}")
-    public String event(@PathVariable(name = "eventId") Long eventId, Model model) {
-        Event event = eventService.getEvent(eventId);
-
-        model.addAttribute("event", event);
-
-        return "event";
-    }
 }

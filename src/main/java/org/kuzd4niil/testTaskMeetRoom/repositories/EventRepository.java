@@ -10,16 +10,25 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author :daniil
+ * @author : daniil
  * @description :
- * @create :2022-07-14
+ * @create : 2022-07-14
  */
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
     @Query(
             nativeQuery = true,
-            value = "SELECT * FROM events where start_date_of_event BETWEEN :startOfWeek " +
-                    "AND :endOfWeek ORDER BY start_date_of_event"
+            value = "SELECT * FROM events WHERE start_date_of_event BETWEEN :startOfWeek AND :endOfWeek "
+            + "ORDER BY start_date_of_event"
     )
     public List<Event> getEvents(@Param("startOfWeek") Date startOfWeek, @Param("endOfWeek") Date endOfWeek);
+
+    @Query(
+            nativeQuery = true,
+            value = "SELECT * FROM events WHERE (start_date_of_event <= :endEvent) "
+                    + "AND (end_date_of_event >= :startEvent) "
+                    + "AND (start_date_of_event != :endEvent) "
+                    + "AND (end_date_of_event != :startEvent)"
+    )
+    public List<Event> getOverlappingEvents(@Param("startEvent") Date start, @Param("endEvent") Date end);
 }

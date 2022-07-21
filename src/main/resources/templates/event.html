@@ -6,7 +6,8 @@
     <link rel="stylesheet" href="/css/tableStyle.css">
 </head>
 <body>
-    <h1 th:text="${event.getEventName()}"></h1>
+    <h1 th:text="Событие № ${event.getId()}"></h1>
+    <h2 th:text="${event.getEventName()}"></h2>
     <p>Описание: <span th:text="${event.getDescription()}"></span></p>
     <p>Начало: <span th:text="${#dates.format(event.getStartDateOfEvent(), 'dd.MM.yyyy HH:mm')}"></span></p>
     <p>Конец: <span th:text="${#dates.format(event.getEndDateOfEvent(), 'dd.MM.yyyy HH:mm')}"></span></p>
