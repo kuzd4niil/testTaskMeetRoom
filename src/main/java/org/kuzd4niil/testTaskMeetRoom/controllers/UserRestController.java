@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.List;
 
@@ -26,8 +28,8 @@ public class UserRestController {
     }
 
     @GetMapping
-    public Principal getUserName(Principal principal) {
-        return principal;
+    public User getUserName(Principal principal) throws NoSuchAlgorithmException, IOException {
+        return userService.findByUsername(principal.getName());
     }
 
     @GetMapping("all")

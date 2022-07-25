@@ -2,7 +2,7 @@ package org.kuzd4niil.testTaskMeetRoom.services;
 
 import org.kuzd4niil.testTaskMeetRoom.entities.Event;
 import org.kuzd4niil.testTaskMeetRoom.exceptions.AnEventOverlapsWithAnotherEventException;
-import org.kuzd4niil.testTaskMeetRoom.exceptions.StartTimeAndEndTimeOfEventIsTheSameException;
+import org.kuzd4niil.testTaskMeetRoom.exceptions.InvalidStartAndEndDatesOfEventException;
 import org.kuzd4niil.testTaskMeetRoom.exceptions.TimeIsNotAMultipleOfHalfOfHourException;
 import org.kuzd4niil.testTaskMeetRoom.repositories.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.List;
 public class EventService {
     private final static long MILLISECONDS_IN_ONE_DAY = 86400000;
     private final static long MILLISECONDS_IN_HALF_OF_HOUR = 1800000;
-    private final static long MILLISECONDS_IN_ONE_SECOND = 1000;
+    private final static Calendar calendar = Calendar.getInstance();
     private EventRepository eventRepository;
 
     @Autowired
@@ -38,8 +38,6 @@ public class EventService {
     }
 
     public List<Event> getEvents(Date currentDate) {
-        Calendar calendar = Calendar.getInstance();
-
         calendar.setTime(currentDate);
 
         // Convert from week which begin at Sunday to week which begin at Monday
@@ -66,15 +64,33 @@ public class EventService {
 
     public Event addEvent(Event event) {
         if (event.getStartDateOfEvent().getTime() == event.getEndDateOfEvent().getTime()) {
-            throw new StartTimeAndEndTimeOfEventIsTheSameException("Start time and end time of event is the same exception");
+            throw new InvalidStartAndEndDatesOfEventException("Start time and end time of event is the same exception");
         }
 
-        if (event.getStartDateOfEvent().getTime() % MILLISECONDS_IN_HALF_OF_HOUR > 0) {
-            throw new TimeIsNotAMultipleOfHalfOfHourException("Time of start event isn't a multiple of half of hour");
+        if (event.getStartDateOfEvent().getTime() > event.getEndDateOfEvent().getTime()) {
+            throw new InvalidStartAndEndDatesOfEventException("Start time of event can't be greater then end time");
         }
 
-        if (event.getEndDateOfEvent().getTime() % MILLISECONDS_IN_HALF_OF_HOUR > 0) {
-            throw new TimeIsNotAMultipleOfHalfOfHourException("Time of end event isn't a multiple of half of hour");
+        if (event.getStartDateOfEvent().getTime() < (new Date()).getTime()) {
+            throw new InvalidStartAndEndDatesOfEventException("Event can't start in the past");
+        }
+
+        if ((event.getStartDateOfEvent().getTime() - event.getEndDateOfEvent().getTime()) > MILLISECONDS_IN_ONE_DAY) {
+            throw new InvalidStartAndEndDatesOfEventException("The duration of the event is more than 24 hours");
+        }
+
+        calendar.setTime(event.getStartDateOfEvent());
+        long startEventDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+        calendar.setTime(event.getEndDateOfEvent());
+        long endEventDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+
+        if ((startEventDayOfWeek == 1) || (endEventDayOfWeek == 1)) {
+            throw new InvalidStartAndEndDatesOfEventException("Meetings cannot take place in the Sun");
+        }
+
+        if ((event.getStartDateOfEvent().getTime() % MILLISECONDS_IN_HALF_OF_HOUR > 0) ||
+                (event.getEndDateOfEvent().getTime() % MILLISECONDS_IN_HALF_OF_HOUR > 0)) {
+            throw new TimeIsNotAMultipleOfHalfOfHourException("Time of start/end event isn't a multiple of half of hour");
         }
 
         List<Event> overlappingEvents = eventRepository.getOverlappingEvents(event.getStartDateOfEvent(), event.getEndDateOfEvent());
@@ -88,5 +104,12 @@ public class EventService {
 
     public Event getEvent(Long eventId) {
         return eventRepository.findById(eventId).get();
+    }
+
+    public boolean deleteEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow();
+
+        eventRepository.delete(event);
+        return true;
     }
 }

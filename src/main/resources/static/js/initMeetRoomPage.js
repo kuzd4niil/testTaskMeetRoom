@@ -41,24 +41,39 @@ let nameOfUser = 'none'
     })
 }
 
+/**
+ * Init profile block on main page. It just show name of client
+ */
 function getUserName() {
     sendRequest('GET', usersApiURL)
     .then(response => {
-        nameOfUser = response.name
+        console.log(response)
+        nameOfUser = response.username
 
         const usernameProfile = document.createElement('h2')
-
+        usernameProfile.style.color = '#00008B'
         usernameProfile.textContent = nameOfUser
 
+        const userAvatar = document.createElement('img')
+        userAvatar.src = "data:image/png;base64," + response.avatar
+        userAvatar.width = '48'
+        userAvatar.height = '48'
+
         profileBlock.appendChild(usernameProfile)
+        profileBlock.appendChild(userAvatar)
     })
     .catch(err => {
         console.log(err)
     })
 }
 
+/**
+ * Init table with start valueю
+ * @param {Date} currentDate Current date that to calculate correct dates
+ * @param {Number} currentWeek For moving by weeks
+ */
 function loadEvents(currentDate, currentWeek = 0) {
-    // INIT TABLE WITH START VALUE
+    // We redraw the entire table so as not to clear the tables from old data and styles.
     eventsTable.replaceChildren()
 
     const headerRow = document.createElement('tr')
@@ -91,9 +106,15 @@ function loadEvents(currentDate, currentWeek = 0) {
         eventsTable.appendChild(tableRow)
     }
 
-    // GET START OF WEEK (RU)
-    let monday = currentDate.getTime() - (currentDate.getDay() - 1) * MILLISECONDS_IN_ONE_DAY + currentWeek * MILLISECONDS_IN_ONE_WEEK
+    /*
+     * Get start of week.
+     */
+    let currentDay = currentDate.getDay()
+    // Transfer from a week that starts on Sun to a week that starts on Mon.
+    currentDay = (currentDay == 0) ? 6 : (currentDay - 1)
+    let monday = currentDate.getTime() - currentDay * MILLISECONDS_IN_ONE_DAY + currentWeek * MILLISECONDS_IN_ONE_WEEK
 
+    // Assign date to days of week.
     const headerColumns = eventsTable.childNodes[0].children
 
     for (let index = 1; index < headerColumns.length; ++index) {
@@ -106,14 +127,20 @@ function loadEvents(currentDate, currentWeek = 0) {
         monday = monday + MILLISECONDS_IN_ONE_DAY
     }
 
+    /*
+     * Init table with events.
+     * Row is time multiple of half of hour.
+     * Column is day of week (from Monday to Saturday)
+     */
     sendRequest('GET', eventsApiURL + '?currentTime=' + encodeURIComponent(new Date(currentDate.getTime() + currentWeek * MILLISECONDS_IN_ONE_WEEK)))
     .then(response => {
-        console.log(response)
-
         response.forEach(element => {
             const startEvent = new Date(element.startDateOfEvent)
             const endEvent = new Date(element.endDateOfEvent)
 
+            /*
+             * Calculation of table coordinates by time and day of the week.
+             */
             let startColumnNum = startEvent.getDay()
             let startRowNum = startEvent.getHours() * 2 + (
                 (startEvent.getMinutes() > 0) ? 1 : 0
@@ -137,6 +164,7 @@ function loadEvents(currentDate, currentWeek = 0) {
 
             eventDetailsLink.href = 'event/' + element.id
 
+            // Each event have own color (colors may repeat).
             const backgroundColor = '#' + Math.floor(Math.random()*16777215).toString(16);
 
             eventNameSpan.style.backgroundColor = backgroundColor
@@ -157,6 +185,7 @@ function loadEvents(currentDate, currentWeek = 0) {
             lastSpan.style.backgroundColor = backgroundColor
             endTableCell.appendChild(lastSpan)
 
+            // Paint over all the time cells in which the meeting will go.
             for (;(startRowNum != endRowNum) || (startColumnNum != endColumnNum);) {
                 ++startRowNum;
 
@@ -165,6 +194,9 @@ function loadEvents(currentDate, currentWeek = 0) {
                 if (startRowNum == 48) {
                     startRowNum = 0;
                     ++startColumnNum;
+                }
+                if (startColumnNum == 7) {
+                    break
                 }
             }
 

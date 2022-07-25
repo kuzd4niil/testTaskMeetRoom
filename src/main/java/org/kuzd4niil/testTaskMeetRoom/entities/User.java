@@ -33,6 +33,10 @@ public class User implements Serializable {
             unique = true
     )
     private String username;
+    @Column(
+            name = "avatar"
+    )
+    private byte[] avatar;
     @JsonIgnore
     @Column(
             name = "password",
@@ -46,9 +50,10 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(Long id, String username, String password, List<Event> events) {
+    public User(Long id, String username, byte[] avatar, String password, List<Event> events) {
         this.id = id;
         this.username = username;
+        this.avatar = avatar;
         this.password = password;
         this.events = events;
     }
@@ -79,5 +84,13 @@ public class User implements Serializable {
 
     public void setEvents(List<Event> events) {
         this.events = events;
+    }
+
+    public byte[] getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(byte[] avatar) {
+        this.avatar = avatar;
     }
 }

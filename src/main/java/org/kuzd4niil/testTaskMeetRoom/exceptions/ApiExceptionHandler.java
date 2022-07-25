@@ -41,8 +41,8 @@ public class ApiExceptionHandler {
         return new ResponseEntity(apiException, badRequest);
     }
 
-    @ExceptionHandler(value = StartTimeAndEndTimeOfEventIsTheSameException.class)
-    public ResponseEntity<ApiException> handleStartTimeAndEndTimeOfEventIsTheSameException(StartTimeAndEndTimeOfEventIsTheSameException e) {
+    @ExceptionHandler(value = InvalidStartAndEndDatesOfEventException.class)
+    public ResponseEntity<ApiException> handleStartTimeAndEndTimeOfEventIsTheSameException(InvalidStartAndEndDatesOfEventException e) {
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
 
         ApiException apiException = new ApiException(
@@ -53,4 +53,18 @@ public class ApiExceptionHandler {
 
         return new ResponseEntity(apiException, badRequest);
     }
+
+    @ExceptionHandler(value = NotEnoughMembersException.class)
+    public ResponseEntity<ApiException> handleNotEnoughMembersException(NotEnoughMembersException e) {
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+
+        ApiException apiException = new ApiException(
+                e.getMessage(),
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("Europe/Moscow"))
+        );
+
+        return new ResponseEntity(apiException, badRequest);
+    }
+
 }

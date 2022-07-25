@@ -5,9 +5,6 @@ spring:
     show-sql: true
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/myDataBase
+    url: jdbc:postgresql://localhost:5432/meetRoomDB
     username: daniil
     password: 123
-  liquibase:
-    change-log: db/migration/master.yml
-    enabled: false

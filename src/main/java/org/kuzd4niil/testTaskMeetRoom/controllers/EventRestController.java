@@ -35,6 +35,11 @@ public class EventRestController {
         return newEvent;
     }
 
+    @DeleteMapping("{eventId}")
+    public boolean deleteEvent(@PathVariable(name = "eventId") Long eventId) {
+        return eventService.deleteEvent(eventId);
+    }
+
     public EventService getEventService() {
         return eventService;
     }

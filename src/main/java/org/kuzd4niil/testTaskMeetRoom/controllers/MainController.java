@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @create :2022-07-14
  */
 @Controller
-@RequestMapping
 public class MainController {
     private EventService eventService;
     @Autowired
